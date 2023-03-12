@@ -1,6 +1,5 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { Course } from 'src/interfaces/course.interface';
-import { User } from 'src/interfaces/user.interface';
 import { SubscriptionService } from 'src/services/subscription.service';
 
 @Controller('subscription')
