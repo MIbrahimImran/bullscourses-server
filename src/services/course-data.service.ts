@@ -48,6 +48,8 @@ export class CourseDataService {
 
     await newPage.waitForSelector('#results');
 
+    await newPage.waitForTimeout(5000);
+
     return newPage;
   }
 
