@@ -4,12 +4,14 @@ import { Browser } from 'puppeteer';
 
 import { Cron } from '@nestjs/schedule';
 import { Course } from 'src/interfaces/course.interface';
+import { SubscriptionService } from './subscription.service';
 
 @Injectable()
 export class CourseDataService {
+  constructor(private subscriptionService: SubscriptionService) {}
   url = 'https://usfweb.usf.edu/DSS/StaffScheduleSearch';
 
-  courses: Course[] = [];
+  private courses: Course[] = [];
 
   @Cron('0 * * * * *') // Runs every minute
   async handleCron() {
@@ -143,5 +145,56 @@ export class CourseDataService {
 
   updateCourseData(courseData: Course[]) {
     this.courses = courseData;
+  }
+
+  getCourses(userInput: string): Course[] {
+    const filteredCourses: Course[] = [];
+    for (const course of this.courses) {
+      if (
+        this.isValidCourseTitle(userInput, course) ||
+        this.isValidCourseCRN(userInput, course) ||
+        this.isValidCourseCRS(userInput, course)
+      ) {
+        filteredCourses.push(course);
+      }
+    }
+    return filteredCourses;
+  }
+
+  private isValidCourseTitle(userInput: string, course: Course): boolean {
+    return course.TITLE?.toLowerCase().includes(userInput.toLowerCase());
+  }
+
+  private isValidCourseCRN(userInput: string, course: Course): boolean {
+    return course.CRN?.toLowerCase().includes(userInput.toLowerCase());
+  }
+
+  private isValidCourseCRS(userInput: string, course: Course): boolean {
+    const trimmedInput = userInput.trim();
+    const splitInput = trimmedInput.split(' ');
+    if (splitInput.length === 2) {
+      const [subject, courseNumber] = splitInput;
+      return (
+        course.SUBJ_CRS?.toLowerCase().includes(subject.toLowerCase()) &&
+        course.SUBJ_CRS?.toLowerCase().includes(courseNumber.toLowerCase())
+      );
+    } else {
+      return course.SUBJ_CRS?.toLowerCase().includes(userInput.toLowerCase());
+    }
+  }
+
+  async getUserSubscribedCourses(email: string): Promise<Course[]> {
+    const subscribedCRNs = await this.subscriptionService.getSubscribedCRNs(
+      email,
+    );
+
+    const subscribedCourses: Course[] = [];
+    for (const course of this.courses) {
+      if (subscribedCRNs.includes(course.CRN)) {
+        subscribedCourses.push(course);
+      }
+    }
+
+    return subscribedCourses;
   }
 }
