@@ -7,12 +7,7 @@ export class CourseDataController {
   constructor(private courseDataService: CourseDataService) {}
 
   @Get(':userInput')
-  getAllCourses(@Param('userInput') userInput: string): Course[] {
-    return this.courseDataService.getCourses(userInput);
-  }
-
-  @Get('subscribed/:email')
-  async getSubscribedCourses(@Param('email') email: string): Promise<Course[]> {
-    return await this.courseDataService.getUserSubscribedCourses(email);
+  getSearchedCourses(@Param('userInput') userInput: string): Course[] {
+    return this.courseDataService.getSearchedCourses(userInput);
   }
 }
