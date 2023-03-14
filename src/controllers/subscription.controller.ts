@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { Course } from 'src/interfaces/course.interface';
 import { SubscriptionService } from 'src/services/subscription.service';
 
@@ -9,22 +9,36 @@ export class SubscriptionController {
   @Post('subscribe')
   subscribeCourse(@Body() body: any): Course {
     const { user, course } = body;
-    this.subscriptionService.subscribeCourse(user, course);
+    this.subscriptionService.subscribeCourse(user.email, course);
     return course;
   }
 
   @Post('unsubscribe')
   unsubscribeCourse(@Body() body: any): Course {
     const { user, course } = body;
-    this.subscriptionService.unsubscribeCourse(user, course);
+    this.subscriptionService.unsubscribeCourse(user.email, course);
     return course;
   }
 
+  @Delete('deleteAllSubscriptions/:email')
+  async deleteAllSubscriptions(@Param('email') email: string): Promise<void> {
+    await this.subscriptionService.unsubscribeAllCourses(email);
+  }
+
   @Get('getSubscribedCRNs/:email')
-  async getSubscribedCRNs(@Param('email') email: string): Promise<string[]> {
-    const subscribedCRNs = await this.subscriptionService.getSubscribedCRNs(
+  async getUserSubscribedCRNs(
+    @Param('email') email: string,
+  ): Promise<string[]> {
+    const subscribedCRNs = await this.subscriptionService.getUserSubscribedCRNs(
       email,
     );
     return subscribedCRNs;
+  }
+
+  @Get('getSubscribedCourses/:email')
+  async getUserSubscribedCourses(
+    @Param('email') email: string,
+  ): Promise<Course[]> {
+    return await this.subscriptionService.getUserSubscribedCourses(email);
   }
 }

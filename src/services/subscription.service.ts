@@ -2,36 +2,39 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Course } from 'src/interfaces/course.interface';
-import { User } from 'src/interfaces/user.interface';
 import { Logger } from '@nestjs/common';
-import {
-  SubscriptioDocument,
-  Subscription,
-} from 'src/schemas/subscription.schema';
+import { UserSubscription } from 'src/interfaces/subscription.interface';
+import { CourseDataService } from './course-data.service';
+import { User } from 'src/schemas/user.schema';
 
 @Injectable()
 export class SubscriptionService {
   constructor(
-    @InjectModel(Subscription.name)
-    private subscriptionModel: Model<SubscriptioDocument>,
+    @InjectModel(User.name)
+    private userModel: Model<User>,
+    private courseDataService: CourseDataService,
   ) {}
 
-  async subscribeCourse(user: User, course: Course): Promise<Course> {
+  async subscribeCourse(userEmail: string, course: Course): Promise<Course> {
     try {
-      const subscription = await this.subscriptionModel.findOne({
-        email: user.email,
+      const user = await this.userModel.findOne({
+        email: userEmail,
       });
 
-      if (subscription) {
-        subscription.subscriptions.push(course.CRN);
-        await subscription.save();
+      const userSubscription: UserSubscription = {
+        CRN: course.CRN,
+        STATUS: course.STATUS,
+      };
+
+      if (user) {
+        user.subscriptions.push(userSubscription);
+        await user.updateOne(user);
       } else {
-        const subscriptionCreated = new this.subscriptionModel({
-          email: user.email,
-          subscriptions: [course.CRN],
+        const newUser = new this.userModel({
+          email: userEmail,
+          subscriptions: [userSubscription],
         });
-
-        await subscriptionCreated.save();
+        await newUser.save();
       }
 
       return course;
@@ -40,17 +43,18 @@ export class SubscriptionService {
     }
   }
 
-  async unsubscribeCourse(user: User, course: Course): Promise<Course> {
+  async unsubscribeCourse(userEmail: string, course: Course): Promise<Course> {
     try {
-      const subscription = await this.subscriptionModel.findOne({
-        email: user.email,
+      const user = await this.userModel.findOne({
+        email: userEmail,
       });
 
-      if (subscription) {
-        subscription.subscriptions = subscription.subscriptions.filter(
-          (crn) => crn !== course.CRN,
+      if (user) {
+        const updatedSubscriptions = user.subscriptions.filter(
+          (subscription) => subscription.CRN !== course.CRN,
         );
-        await subscription.updateOne(subscription);
+        user.subscriptions = updatedSubscriptions;
+        await user.updateOne(user);
       }
 
       return course;
@@ -59,15 +63,70 @@ export class SubscriptionService {
     }
   }
 
-  async getSubscribedCRNs(email: string): Promise<string[]> {
+  async unsubscribeAllCourses(userEmail: string): Promise<void> {
     try {
-      const subscription = await this.subscriptionModel.find({
-        email,
+      const user = await this.userModel.findOne({
+        email: userEmail,
       });
-      const subscribedCRNs = subscription
-        .map((subscription) => subscription.subscriptions)
-        .flat();
-      return subscribedCRNs;
+
+      if (user) {
+        user.subscriptions = [];
+        await user.updateOne(user);
+      }
+    } catch (error) {
+      Logger.error(error);
+    }
+  }
+
+  async getUserSubscriptions(userEmail: string): Promise<UserSubscription[]> {
+    try {
+      const user = await this.userModel.findOne({
+        email: userEmail,
+      });
+
+      if (user) return user.subscriptions;
+
+      return [];
+    } catch (error) {
+      Logger.error(error);
+    }
+  }
+
+  async getUserSubscribedCRNs(userEmail: string): Promise<string[]> {
+    try {
+      const user = await this.userModel.findOne({
+        email: userEmail,
+      });
+
+      if (user) {
+        const subscribedCRNs = user.subscriptions.map(
+          (subscription) => subscription.CRN,
+        );
+        return subscribedCRNs;
+      }
+
+      return [];
+    } catch (error) {
+      Logger.error(error);
+    }
+  }
+
+  async getUserSubscribedCourses(userEmail: string): Promise<Course[]> {
+    try {
+      const user = await this.userModel.findOne({
+        email: userEmail,
+      });
+
+      if (user) {
+        const subscribedCRNs = user.subscriptions.map(
+          (subscription) => subscription.CRN,
+        );
+
+        const subscribedCourses =
+          this.courseDataService.getCoursesByCRNs(subscribedCRNs);
+
+        return subscribedCourses;
+      }
     } catch (error) {
       Logger.error(error);
     }

@@ -36,3 +36,5 @@ lerna-debug.log*
 
 # Local Config Files
 /config/local.json
+
+.env

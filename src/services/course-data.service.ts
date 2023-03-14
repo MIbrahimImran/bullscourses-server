@@ -1,153 +1,30 @@
-import { Injectable } from '@nestjs/common';
-import * as puppeteer from 'puppeteer';
-import { Browser } from 'puppeteer';
-
+import { Injectable, Logger } from '@nestjs/common';
+import { Model } from 'mongoose';
 import { Cron } from '@nestjs/schedule';
 import { Course } from 'src/interfaces/course.interface';
-import { SubscriptionService } from './subscription.service';
-
+import { EmailService } from './email.service';
+import { CourseScrapingService } from './course-scraping.service';
+import { User } from 'src/schemas/user.schema';
+import { InjectModel } from '@nestjs/mongoose';
 @Injectable()
 export class CourseDataService {
-  constructor(private subscriptionService: SubscriptionService) {}
-  url = 'https://usfweb.usf.edu/DSS/StaffScheduleSearch';
+  constructor(
+    @InjectModel(User.name)
+    private userModel: Model<User>,
+    private courseScrapingService: CourseScrapingService,
+    private emailService: EmailService,
+  ) {}
 
   private courses: Course[] = [];
 
   @Cron('0 * * * * *') // Runs every minute
   async handleCron() {
-    const courseData = await this.getScrapedCourseData();
+    const courseData = await this.courseScrapingService.getScrapedCourseData();
     this.updateCourseData(courseData);
+    this.notifySubscribersOnCourseStatusChange();
   }
 
-  async getScrapedCourseData(): Promise<Course[]> {
-    const browser = await puppeteer.launch();
-    const page = await this.getStaffScheduleCoursePage(browser, '202301');
-    const tableData = await this.getTableData(page);
-    const formattedTableData = this.formatTableData(tableData);
-    await browser.close();
-    return formattedTableData;
-  }
-
-  async getStaffScheduleCoursePage(
-    browser: Browser,
-    term: string,
-  ): Promise<puppeteer.Page> {
-    const page = await browser.newPage();
-    await page.goto(this.url);
-
-    await this.selectFilters(page, term);
-
-    const submitButton = await page.$('button[type="submit"]');
-
-    const newPagePromise = new Promise((resolve) =>
-      browser.once('targetcreated', resolve),
-    );
-
-    await submitButton.click();
-
-    const newPageTarget = (await newPagePromise) as puppeteer.Target;
-    const newPage = await newPageTarget.page();
-
-    await newPage.waitForSelector('#results');
-
-    await newPage.waitForTimeout(5000);
-
-    return newPage;
-  }
-
-  async selectFilters(page: puppeteer.Page, term: string): Promise<void> {
-    await page.waitForSelector('#P_SEMESTER');
-    await page.select('#P_SEMESTER', term);
-
-    await page.waitForSelector('#P_SESSION');
-    await page.select('#P_SESSION', '1');
-
-    await page.waitForSelector('#P_CAMPUS');
-    await page.select('#P_CAMPUS', 'T');
-
-    await page.waitForSelector('#p_insm_x_innl');
-    await page.click('#p_insm_x_innl');
-
-    await page.waitForSelector('#p_insm_x_inot');
-    await page.click('#p_insm_x_inot');
-  }
-
-  async getTableData(page: puppeteer.Page) {
-    const tableData = await page.$$eval('#results tr', (rows) =>
-      rows.map((row) => {
-        const columns = row.querySelectorAll('td');
-        return Array.from(columns, (column: any) => column.textContent);
-      }),
-    );
-
-    return tableData;
-  }
-
-  formatTableData(tableData: any): Course[] {
-    const formattedTableData = tableData.map((row: any) => {
-      const [
-        SESSION,
-        COL,
-        DPT,
-        CRN,
-        SUBJ_CRS,
-        SEC,
-        TYPE,
-        TITLE,
-        CR,
-        PMT,
-        STATUS,
-        STATUS2,
-        SEATSREMAIN,
-        WAITSEATSAVAIL,
-        CAP,
-        ENRL,
-        DAYS,
-        TIME,
-        BLDG,
-        ROOM,
-        INSTRUCTOR,
-        CAMPUS,
-        DELIVERYMETHOD,
-        FEES,
-      ] = row;
-
-      return {
-        SESSION,
-        COL,
-        DPT,
-        CRN,
-        SUBJ_CRS,
-        SEC,
-        TYPE,
-        TITLE,
-        CR,
-        PMT,
-        STATUS,
-        STATUS2,
-        SEATSREMAIN,
-        WAITSEATSAVAIL,
-        CAP,
-        ENRL,
-        DAYS,
-        TIME,
-        BLDG,
-        ROOM,
-        INSTRUCTOR,
-        CAMPUS,
-        DELIVERYMETHOD,
-        FEES,
-      };
-    });
-
-    return formattedTableData;
-  }
-
-  updateCourseData(courseData: Course[]) {
-    this.courses = courseData;
-  }
-
-  getCourses(userInput: string): Course[] {
+  getSearchedCourses(userInput: string): Course[] {
     const filteredCourses: Course[] = [];
     for (const course of this.courses) {
       if (
@@ -159,6 +36,20 @@ export class CourseDataService {
       }
     }
     return filteredCourses;
+  }
+
+  getCoursesByCRNs(crns: string[]): Course[] {
+    const filteredCourses: Course[] = [];
+    for (const course of this.courses) {
+      if (crns.includes(course.CRN)) {
+        filteredCourses.push(course);
+      }
+    }
+    return filteredCourses;
+  }
+
+  private updateCourseData(courseData: Course[]): void {
+    this.courses = courseData;
   }
 
   private isValidCourseTitle(userInput: string, course: Course): boolean {
@@ -183,18 +74,43 @@ export class CourseDataService {
     }
   }
 
-  async getUserSubscribedCourses(email: string): Promise<Course[]> {
-    const subscribedCRNs = await this.subscriptionService.getSubscribedCRNs(
-      email,
-    );
+  async notifySubscribersOnCourseStatusChange(): Promise<void> {
+    try {
+      console.log('Checking for course status changes...');
+      const users = await this.userModel.find();
 
-    const subscribedCourses: Course[] = [];
-    for (const course of this.courses) {
-      if (subscribedCRNs.includes(course.CRN)) {
-        subscribedCourses.push(course);
-      }
+      users.forEach(async (user) => {
+        const subscribedCRNs = user.subscriptions.map(
+          (subscription) => subscription.CRN,
+        );
+
+        const subscribedCourses = this.getCoursesByCRNs(subscribedCRNs);
+
+        subscribedCourses.forEach((subscribedCourse) => {
+          const userSubscription = user.subscriptions.find(
+            (subscription) => subscription.CRN === subscribedCourse.CRN,
+          );
+
+          userSubscription.STATUS = 'Closed';
+
+          if (userSubscription.STATUS !== subscribedCourse.STATUS) {
+            userSubscription.STATUS = subscribedCourse.STATUS;
+            const subject = `${subscribedCourse.TITLE} is now ${subscribedCourse.STATUS}`;
+            const courseStatusMessage = `You are subscribed to course Title: ${subscribedCourse.TITLE} | CRN: ${subscribedCourse.CRN} and its status has changed to ${subscribedCourse.STATUS}. 
+            To view all of your subscribed courses, please visit https://bullscourses.com/
+            To unsubscribe from all courses, please visit https://bullscourses.com/subscription/unsubscribeAll`;
+
+            this.emailService.sendEmail(
+              user.email,
+              subject,
+              courseStatusMessage,
+            );
+            user.updateOne(user);
+          }
+        });
+      });
+    } catch (error) {
+      Logger.error(error);
     }
-
-    return subscribedCourses;
   }
 }
