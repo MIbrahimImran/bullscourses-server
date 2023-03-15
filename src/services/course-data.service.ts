@@ -76,7 +76,6 @@ export class CourseDataService {
 
   async notifySubscribersOnCourseStatusChange(): Promise<void> {
     try {
-      console.log('Checking for course status changes...');
       const users = await this.userModel.find();
 
       users.forEach(async (user) => {
@@ -90,8 +89,6 @@ export class CourseDataService {
           const userSubscription = user.subscriptions.find(
             (subscription) => subscription.CRN === subscribedCourse.CRN,
           );
-
-          userSubscription.STATUS = 'Closed';
 
           if (userSubscription.STATUS !== subscribedCourse.STATUS) {
             userSubscription.STATUS = subscribedCourse.STATUS;
