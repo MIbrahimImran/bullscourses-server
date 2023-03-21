@@ -1,73 +1,33 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# BullsCourses
+BullsCourses is an open-source project dedicated to creating a robust and feature-rich application. We welcome community contributions, and we're always looking for new features to enhance the project. If you have a feature request, please follow the guidelines below to submit it and potentially become a project maintainer.
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Feature Requests
+1. Create a new issue in the GitHub repository describing the feature you'd like to see implemented. Please be as detailed as possible, including any relevant use cases, design considerations, and potential challenges.
+2. The maintainers will review your request and prioritize it based on the project's roadmap and overall goals. If your feature request is accepted, it will be added to the project's backlog.
+3. You are encouraged to implement the feature yourself and submit a pull request, following the contribution guidelines outlined below.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Contribution Guidelines
+Please follow these guidelines when contributing to the project:
+1. Fork the repository and create a new branch for your feature.
+2. Ensure your code adheres to the project's coding standards and style guide.
+3. Write clear and concise commit messages, and reference any related issues.
+4. If necessary, update the documentation (README.md, wiki, etc.) to reflect your changes.
+5. Submit a pull request against the develop branch, and wait for a maintainer to review your changes.
 
-## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Becoming a Maintainer
+We don't have a strict rule for becoming a maintainer, but generally, if you contribute by implementing any three small features or one large feature, you may be eligible for maintainer status. The project's core team will review your contributions and determine your eligibility based on the quality and impact of your work.
 
-## Installation
+## General Guidelines
+To ensure a positive and productive experience for all contributors, please follow these general guidelines:
 
-```bash
-$ npm install
-```
+1. Be respectful and considerate of other contributors, acknowledging that everyone has different skill levels and areas of expertise.
+2. Stay on topic and keep discussions focused on the project and its goals.
+3. Be open to feedback and willing to iterate on your work as needed.
+4. Communicate clearly and effectively, using appropriate channels for project-related discussions.
 
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+By following these guidelines, you will help create a welcoming and collaborative environment for everyone involved in the project. We look forward to your contributions and thank you for your support!
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+This project is licensed under the [MIT License](LICENSE.md).
