@@ -1,5 +1,5 @@
 # BullsCourses
-BullsCourses is an open-source project dedicated to creating a robust and feature-rich application. We welcome community contributions, and we're always looking for new features to enhance the project. If you have a feature request, please follow the guidelines below to submit it and potentially become a project maintainer.
+[BullsCourses](https://www.bullscourses.com) is an open-source project dedicated to creating a robust and feature-rich application. We welcome community contributions, and we're always looking for new features to enhance the project. If you have a feature request, please follow the guidelines below to submit it and potentially become a project maintainer.
 
 ## Feature Requests
 1. Create a new issue in the GitHub repository describing the feature you'd like to see implemented. Please be as detailed as possible, including any relevant use cases, design considerations, and potential challenges.
