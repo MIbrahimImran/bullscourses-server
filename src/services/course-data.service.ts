@@ -17,11 +17,16 @@ export class CourseDataService {
 
   private courses: Course[] = [];
 
+  private missingCoursesCount = 0;
+
   @Cron('0 * * * * *') // Runs every minute
   async handleCron() {
     const courseData = await this.courseScrapingService.getScrapedCourseData();
     this.updateCourseData(courseData);
     this.notifySubscribersOnCourseStatusChange();
+    Logger.log(this.courses.length + ' courses updated');
+    Logger.log(courseData.length + ' courses scraped');
+    Logger.log(this.missingCoursesCount + ' missing courses');
   }
 
   getSearchedCourses(userInput: string): Course[] {
@@ -49,7 +54,24 @@ export class CourseDataService {
   }
 
   private updateCourseData(courseData: Course[]): void {
-    this.courses = courseData;
+    const lengthDifference = courseData.length - this.courses.length;
+    const withinTwoPercent =
+      Math.abs(lengthDifference) / this.courses.length <= 0.05;
+
+    if (this.courses.length === 0) {
+      this.courses = courseData;
+    } else if (lengthDifference >= 0) {
+      this.courses = courseData;
+      this.missingCoursesCount = 0;
+    } else if (withinTwoPercent) {
+      this.missingCoursesCount++;
+      if (this.missingCoursesCount > 5) {
+        this.courses = courseData;
+        this.missingCoursesCount = 0;
+      }
+    } else {
+      this.missingCoursesCount = 0;
+    }
   }
 
   private isValidCourseTitle(userInput: string, course: Course): boolean {
