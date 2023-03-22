@@ -37,27 +37,14 @@ export class CourseScrapingService {
     const newPageTarget = (await newPagePromise) as puppeteer.Target;
     const newPage = await newPageTarget.page();
 
-    await newPage.waitForSelector('#results');
-
-    await newPage.waitForTimeout(5000);
-
     return newPage;
   }
 
   async selectFilters(page: puppeteer.Page, term: string): Promise<void> {
-    await page.waitForSelector('#P_SEMESTER');
     await page.select('#P_SEMESTER', term);
-
-    await page.waitForSelector('#P_SESSION');
     await page.select('#P_SESSION', '1');
-
-    await page.waitForSelector('#P_CAMPUS');
     await page.select('#P_CAMPUS', 'T');
-
-    await page.waitForSelector('#p_insm_x_innl');
     await page.click('#p_insm_x_innl');
-
-    await page.waitForSelector('#p_insm_x_inot');
     await page.click('#p_insm_x_inot');
   }
 
