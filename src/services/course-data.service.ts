@@ -16,7 +16,6 @@ export class CourseDataService {
   ) {}
 
   private courses: Course[] = [];
-
   private missingCoursesCount = 0;
 
   @Cron('0 * * * * *') // Runs every minute
@@ -24,9 +23,6 @@ export class CourseDataService {
     const courseData = await this.courseScrapingService.getScrapedCourseData();
     this.updateCourseData(courseData);
     this.notifySubscribersOnCourseStatusChange();
-    Logger.log(this.courses.length + ' courses updated');
-    Logger.log(courseData.length + ' courses scraped');
-    Logger.log(this.missingCoursesCount + ' missing courses');
   }
 
   getSearchedCourses(userInput: string): Course[] {
