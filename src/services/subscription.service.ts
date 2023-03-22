@@ -6,6 +6,7 @@ import { Logger } from '@nestjs/common';
 import { UserSubscription } from 'src/interfaces/subscription.interface';
 import { CourseDataService } from './course-data.service';
 import { User } from 'src/schemas/user.schema';
+import { EmailService } from './email.service';
 
 @Injectable()
 export class SubscriptionService {
@@ -13,6 +14,7 @@ export class SubscriptionService {
     @InjectModel(User.name)
     private userModel: Model<User>,
     private courseDataService: CourseDataService,
+    private emailService: EmailService,
   ) {}
 
   async subscribeCourse(userEmail: string, course: Course): Promise<Course> {
@@ -37,6 +39,10 @@ export class SubscriptionService {
         await newUser.save();
       }
 
+      const subject = `CRN:${course.CRN} Title:"${course.TITLE}" is now subscribed!`;
+      const text = `You have successfully subscribed to ${course.CRN} ${course.TITLE}. You will receive email notifications when the course status changes.`;
+      this.emailService.sendEmail(userEmail, subject, text);
+
       return course;
     } catch (error) {
       Logger.error(error);
@@ -56,6 +62,10 @@ export class SubscriptionService {
         user.subscriptions = updatedSubscriptions;
         await user.updateOne(user);
       }
+
+      const subject = `CRN:${course.CRN} Title:"${course.TITLE}" is now unsubscribed!`;
+      const text = `You have successfully unsubscribed from ${course.CRN} ${course.TITLE}. You will no longer receive email notifications when the course status changes.`;
+      this.emailService.sendEmail(userEmail, subject, text);
 
       return course;
     } catch (error) {
