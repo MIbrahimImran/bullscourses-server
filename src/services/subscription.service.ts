@@ -141,4 +141,19 @@ export class SubscriptionService {
       Logger.error(error);
     }
   }
+
+  async getSubscriptionsCount(): Promise<number> {
+    try {
+      const users = await this.userModel.find();
+      let count = 0;
+
+      users.forEach((user) => {
+        count += user.subscriptions.length;
+      });
+
+      return count;
+    } catch (error) {
+      Logger.error(error);
+    }
+  }
 }

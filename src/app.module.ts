@@ -10,6 +10,8 @@ import { EmailService } from './services/email.service';
 import { CourseDataService } from './services/course-data.service';
 import { CourseScrapingService } from './services/course-scraping.service';
 import { ConfigModule } from '@nestjs/config';
+import { UserService } from './services/user.service';
+import { UserController } from './controllers/user.controller';
 
 @Module({
   imports: [
@@ -18,12 +20,13 @@ import { ConfigModule } from '@nestjs/config';
     MongooseModule.forRoot(db.hostUri),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
-  controllers: [CourseDataController, SubscriptionController],
+  controllers: [CourseDataController, SubscriptionController, UserController],
   providers: [
     EmailService,
     SubscriptionService,
     CourseScrapingService,
     CourseDataService,
+    UserService,
   ],
 })
 export class AppModule {}

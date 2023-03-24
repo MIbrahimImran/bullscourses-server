@@ -41,4 +41,9 @@ export class SubscriptionController {
   ): Promise<Course[]> {
     return await this.subscriptionService.getUserSubscribedCourses(email);
   }
+
+  @Get('count')
+  async getSubscriptionsCount(): Promise<number> {
+    return await this.subscriptionService.getSubscriptionsCount();
+  }
 }

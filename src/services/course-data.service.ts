@@ -51,7 +51,7 @@ export class CourseDataService {
 
   private updateCourseData(courseData: Course[]): void {
     const lengthDifference = courseData.length - this.courses.length;
-    const withinTwoPercent =
+    const withinFivePercent =
       Math.abs(lengthDifference) / this.courses.length <= 0.05;
 
     if (this.courses.length === 0) {
@@ -59,7 +59,7 @@ export class CourseDataService {
     } else if (lengthDifference >= 0) {
       this.courses = courseData;
       this.missingCoursesCount = 0;
-    } else if (withinTwoPercent) {
+    } else if (withinFivePercent) {
       this.missingCoursesCount++;
       if (this.missingCoursesCount > 5) {
         this.courses = courseData;
