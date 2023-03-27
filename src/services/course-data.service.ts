@@ -96,14 +96,14 @@ export class CourseDataService {
     try {
       const users = await this.userModel.find();
 
-      users.forEach(async (user) => {
+      for (const user of users) {
         const subscribedCRNs = user.subscriptions.map(
           (subscription) => subscription.CRN,
         );
 
         const subscribedCourses = this.getCoursesByCRNs(subscribedCRNs);
 
-        subscribedCourses.forEach((subscribedCourse) => {
+        for (const subscribedCourse of subscribedCourses) {
           const userSubscription = user.subscriptions.find(
             (subscription) => subscription.CRN === subscribedCourse.CRN,
           );
@@ -120,10 +120,10 @@ export class CourseDataService {
               subject,
               courseStatusMessage,
             );
-            user.updateOne(user);
+            await user.updateOne({ subscriptions: user.subscriptions });
           }
-        });
-      });
+        }
+      }
     } catch (error) {
       Logger.error(error);
     }
