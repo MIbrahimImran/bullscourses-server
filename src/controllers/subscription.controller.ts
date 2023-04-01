@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { Course } from 'src/interfaces/course.interface';
+import { CourseSubscription } from 'src/interfaces/subscription.interface';
 import { SubscriptionService } from 'src/services/subscription.service';
 
 @Controller('subscription')
@@ -25,25 +26,18 @@ export class SubscriptionController {
     await this.subscriptionService.unsubscribeAllCourses(email);
   }
 
-  @Get('getSubscribedCRNs/:email')
+  @Get('getUserSubscriptions/:email')
   async getUserSubscribedCRNs(
     @Param('email') email: string,
-  ): Promise<string[]> {
-    const subscribedCRNs = await this.subscriptionService.getUserSubscribedCRNs(
+  ): Promise<CourseSubscription[]> {
+    const subscribedCRNs = await this.subscriptionService.getUserSubscriptions(
       email,
     );
     return subscribedCRNs;
   }
 
-  @Get('getSubscribedCourses/:email')
-  async getUserSubscribedCourses(
-    @Param('email') email: string,
-  ): Promise<Course[]> {
-    return await this.subscriptionService.getUserSubscribedCourses(email);
-  }
-
   @Get('count')
-  async getSubscriptionsCount(): Promise<number> {
-    return await this.subscriptionService.getSubscriptionsCount();
+  async getTotalSubscriptionCount(): Promise<number> {
+    return await this.subscriptionService.getTotalSubscriptionCount();
   }
 }

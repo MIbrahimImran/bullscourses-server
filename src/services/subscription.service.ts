@@ -3,146 +3,96 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Course } from 'src/interfaces/course.interface';
 import { Logger } from '@nestjs/common';
-import { UserSubscription } from 'src/interfaces/subscription.interface';
-import { CourseDataService } from './course-data.service';
-import { User } from 'src/schemas/user.schema';
+import { User } from 'src/schemas/subscription.schema';
 import { EmailService } from './email.service';
+import { CourseSubscription } from 'src/interfaces/subscription.interface';
 
 @Injectable()
 export class SubscriptionService {
   constructor(
     @InjectModel(User.name)
     private userModel: Model<User>,
-    private courseDataService: CourseDataService,
     private emailService: EmailService,
   ) {}
 
-  async subscribeCourse(userEmail: string, course: Course): Promise<Course> {
+  async subscribeCourse(course: Course, userEmail: string): Promise<Course> {
     try {
-      const user = await this.userModel.findOne({
-        email: userEmail,
-      });
+      const user = await this.userModel.findOne({ email: userEmail });
 
-      const userSubscription: UserSubscription = {
+      const courseSubscription: CourseSubscription = {
         CRN: course.CRN,
         STATUS: course.STATUS,
       };
 
       if (user) {
-        user.subscriptions.push(userSubscription);
+        user.subscriptions.push(courseSubscription);
         await user.updateOne(user);
       } else {
         const newUser = new this.userModel({
           email: userEmail,
-          subscriptions: [userSubscription],
+          subscriptions: [courseSubscription],
         });
         await newUser.save();
       }
 
-      const subject = `CRN:${course.CRN} Title:"${course.TITLE}" is now subscribed!`;
-      const text = `You have successfully subscribed to ${course.CRN} ${course.TITLE}. You will receive email notifications when the course status changes.`;
-      this.emailService.sendEmail(userEmail, subject, text);
-
+      this.emailService.sendSubscribeNotification(course, userEmail);
       return course;
     } catch (error) {
-      Logger.error(error);
+      Logger.error(
+        `Failed to subscribe course with CRN ${course.CRN} for user with email ${userEmail}: ${error.message}`,
+        error,
+      );
     }
   }
 
-  async unsubscribeCourse(userEmail: string, course: Course): Promise<Course> {
+  async unsubscribeCourse(course: Course, userEmail: string): Promise<Course> {
     try {
-      const user = await this.userModel.findOne({
-        email: userEmail,
-      });
+      const user = await this.userModel.findOne({ email: userEmail });
 
       if (user) {
         const updatedSubscriptions = user.subscriptions.filter(
           (subscription) => subscription.CRN !== course.CRN,
         );
-        user.subscriptions = updatedSubscriptions;
-        await user.updateOne(user);
+        await user.updateOne({ $set: { subscriptions: updatedSubscriptions } });
       }
 
-      const subject = `CRN:${course.CRN} Title:"${course.TITLE}" is now unsubscribed!`;
-      const text = `You have successfully unsubscribed from ${course.CRN} ${course.TITLE}. You will no longer receive email notifications when the course status changes.`;
-      this.emailService.sendEmail(userEmail, subject, text);
+      this.emailService.sendUnsubscribeNotification(course, userEmail);
 
       return course;
     } catch (error) {
-      Logger.error(error);
+      Logger.error(
+        `Failed to unsubscribe course with CRN ${course.CRN} for user with email ${userEmail}: ${error.message}`,
+        error,
+      );
     }
   }
 
   async unsubscribeAllCourses(userEmail: string): Promise<void> {
     try {
-      const user = await this.userModel.findOne({
-        email: userEmail,
-      });
+      const user = await this.userModel.findOne({ email: userEmail });
 
-      if (user) {
-        user.subscriptions = [];
-        await user.updateOne(user);
-      }
+      if (user) await user.updateOne({ $set: { subscriptions: [] } });
+
+      this.emailService.sendUnsubscribeAllNotification(userEmail);
     } catch (error) {
-      Logger.error(error);
+      Logger.error(
+        `Failed to unsubscribe all courses for user with email ${userEmail}: ${error.message}`,
+        error,
+      );
     }
   }
 
-  async getUserSubscriptions(userEmail: string): Promise<UserSubscription[]> {
+  async getUserSubscriptions(userEmail: string): Promise<CourseSubscription[]> {
     try {
-      const user = await this.userModel.findOne({
-        email: userEmail,
-      });
+      const user = await this.userModel.findOne({ email: userEmail });
 
-      if (user) return user.subscriptions;
-
-      return [];
+      return user ? user.subscriptions : [];
     } catch (error) {
-      Logger.error(error);
+      Logger.error(`Failed to get user subscriptions: ${error.message}`, error);
     }
   }
 
-  async getUserSubscribedCRNs(userEmail: string): Promise<string[]> {
-    try {
-      const user = await this.userModel.findOne({
-        email: userEmail,
-      });
-
-      if (user) {
-        const subscribedCRNs = user.subscriptions.map(
-          (subscription) => subscription.CRN,
-        );
-        return subscribedCRNs;
-      }
-
-      return [];
-    } catch (error) {
-      Logger.error(error);
-    }
-  }
-
-  async getUserSubscribedCourses(userEmail: string): Promise<Course[]> {
-    try {
-      const user = await this.userModel.findOne({
-        email: userEmail,
-      });
-
-      if (user) {
-        const subscribedCRNs = user.subscriptions.map(
-          (subscription) => subscription.CRN,
-        );
-
-        const subscribedCourses =
-          this.courseDataService.getCoursesByCRNs(subscribedCRNs);
-
-        return subscribedCourses;
-      }
-    } catch (error) {
-      Logger.error(error);
-    }
-  }
-
-  async getSubscriptionsCount(): Promise<number> {
+  async getTotalSubscriptionCount(): Promise<number> {
     try {
       const users = await this.userModel.find();
       let count = 0;
@@ -153,7 +103,10 @@ export class SubscriptionService {
 
       return count;
     } catch (error) {
-      Logger.error(error);
+      Logger.error(
+        `Failed to get total subscriptions count: ${error.message}`,
+        error,
+      );
     }
   }
 }

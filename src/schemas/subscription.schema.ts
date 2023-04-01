@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
-import { UserSubscription } from 'src/interfaces/subscription.interface';
+import { CourseSubscription } from 'src/interfaces/subscription.interface';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -10,7 +10,7 @@ export class User {
   email: string;
 
   @Prop()
-  subscriptions: UserSubscription[];
+  subscriptions: CourseSubscription[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
