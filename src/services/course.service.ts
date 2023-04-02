@@ -2,9 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Cron } from '@nestjs/schedule';
 import { Course } from 'src/interfaces/course.interface';
-import { EmailService } from './email.service';
-import { CourseScrapingService } from './course-scraping.service';
-import { User } from 'src/schemas/user.schema';
+import { CourseScrapingService } from './scraping.service';
+import { User } from 'src/schemas/subscription.schema';
 import { InjectModel } from '@nestjs/mongoose';
 @Injectable()
 export class CourseDataService {
@@ -12,7 +11,6 @@ export class CourseDataService {
     @InjectModel(User.name)
     private userModel: Model<User>,
     private courseScrapingService: CourseScrapingService,
-    private emailService: EmailService,
   ) {}
 
   private courses: Course[] = [];
@@ -110,16 +108,6 @@ export class CourseDataService {
 
           if (userSubscription.STATUS !== subscribedCourse.STATUS) {
             userSubscription.STATUS = subscribedCourse.STATUS;
-            const subject = `${subscribedCourse.TITLE} is now ${subscribedCourse.STATUS}`;
-            const courseStatusMessage = `You are subscribed to course Title: ${subscribedCourse.TITLE} | CRN: ${subscribedCourse.CRN} and its status has changed to ${subscribedCourse.STATUS}. 
-            To view all of your subscribed courses, please visit https://bullscourses.com/
-            To unsubscribe from all courses, please visit https://bullscourses.com/subscription/unsubscribeAll`;
-
-            this.emailService.sendEmail(
-              user.email,
-              subject,
-              courseStatusMessage,
-            );
             await user.updateOne({ subscriptions: user.subscriptions });
           }
         }

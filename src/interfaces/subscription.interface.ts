@@ -1,4 +1,4 @@
-export interface UserSubscription {
+export interface CourseSubscription {
   CRN: string;
   STATUS: string;
 }
