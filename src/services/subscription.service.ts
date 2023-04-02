@@ -15,7 +15,7 @@ export class SubscriptionService {
     private emailService: EmailService,
   ) {}
 
-  async subscribeCourse(course: Course, userEmail: string): Promise<Course> {
+  async subscribeCourse(userEmail: string, course: Course): Promise<Course> {
     try {
       const user = await this.userModel.findOne({ email: userEmail });
 
@@ -35,7 +35,7 @@ export class SubscriptionService {
         await newUser.save();
       }
 
-      this.emailService.sendSubscribeNotification(course, userEmail);
+      // this.emailService.sendSubscribeNotification(course, userEmail);
       return course;
     } catch (error) {
       Logger.error(
@@ -45,7 +45,7 @@ export class SubscriptionService {
     }
   }
 
-  async unsubscribeCourse(course: Course, userEmail: string): Promise<Course> {
+  async unsubscribeCourse(userEmail: string, course: Course): Promise<Course> {
     try {
       const user = await this.userModel.findOne({ email: userEmail });
 
@@ -56,7 +56,7 @@ export class SubscriptionService {
         await user.updateOne({ $set: { subscriptions: updatedSubscriptions } });
       }
 
-      this.emailService.sendUnsubscribeNotification(course, userEmail);
+      // this.emailService.sendUnsubscribeNotification(course, userEmail);
 
       return course;
     } catch (error) {
@@ -73,7 +73,7 @@ export class SubscriptionService {
 
       if (user) await user.updateOne({ $set: { subscriptions: [] } });
 
-      this.emailService.sendUnsubscribeAllNotification(userEmail);
+      // this.emailService.sendUnsubscribeAllNotification(userEmail);
     } catch (error) {
       Logger.error(
         `Failed to unsubscribe all courses for user with email ${userEmail}: ${error.message}`,

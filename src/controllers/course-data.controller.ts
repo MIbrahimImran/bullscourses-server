@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { Course } from 'src/interfaces/course.interface';
 import { CourseDataService } from 'src/services/course.service';
 

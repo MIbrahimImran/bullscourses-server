@@ -12,9 +12,11 @@ import { CourseScrapingService } from './services/scraping.service';
 import { ConfigModule } from '@nestjs/config';
 import { UserService } from './services/user.service';
 import { UserController } from './controllers/user.controller';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     ConfigModule.forRoot(),
     ScheduleModule.forRoot(),
     MongooseModule.forRoot(db.hostUri),

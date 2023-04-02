@@ -28,6 +28,7 @@
     "@nestjs/passport": "^9.0.3",
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/schedule": "^2.2.0",
+    "jsonwebtoken": "^9.0.0",
     "jwks-rsa": "^3.0.1",
     "mongoose": "^6.10.2",
     "nodemailer": "^6.9.1",
