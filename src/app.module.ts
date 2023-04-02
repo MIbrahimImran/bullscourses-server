@@ -13,21 +13,26 @@ import { ConfigModule } from '@nestjs/config';
 import { UserService } from './services/user.service';
 import { UserController } from './controllers/user.controller';
 import { AuthModule } from './auth/auth.module';
-import { ChatGPTController } from './controllers/chatGPT.controller';
 import { ChatGPTService } from './services/chatGPT.service';
+import { QuestionGeneratorController } from './controllers/question-generator.controller';
+import { Course, CourseSchema } from './schemas/course.schema';
+import { QuestionGeneratorService } from './services/question-generator.service';
 @Module({
   imports: [
     AuthModule,
     ConfigModule.forRoot(),
     ScheduleModule.forRoot(),
     MongooseModule.forRoot(db.hostUri),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Course.name, schema: CourseSchema },
+    ]),
   ],
   controllers: [
     CourseController,
     SubscriptionController,
     UserController,
-    ChatGPTController,
+    QuestionGeneratorController,
   ],
   providers: [
     EmailService,
@@ -36,6 +41,7 @@ import { ChatGPTService } from './services/chatGPT.service';
     CourseDataService,
     UserService,
     ChatGPTService,
+    QuestionGeneratorService,
   ],
 })
 export class AppModule {}

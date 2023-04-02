@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Course } from 'src/interfaces/course.interface';
+import { ICourse } from 'src/interfaces/course.interface';
 import { Logger } from '@nestjs/common';
 import { User } from 'src/schemas/user.schema';
 import { EmailService } from './email.service';
@@ -15,7 +15,7 @@ export class SubscriptionService {
     private emailService: EmailService,
   ) {}
 
-  async subscribeCourse(userEmail: string, course: Course): Promise<Course> {
+  async subscribeCourse(userEmail: string, course: ICourse): Promise<ICourse> {
     try {
       const user = await this.userModel.findOne({ email: userEmail });
 
@@ -45,7 +45,10 @@ export class SubscriptionService {
     }
   }
 
-  async unsubscribeCourse(userEmail: string, course: Course): Promise<Course> {
+  async unsubscribeCourse(
+    userEmail: string,
+    course: ICourse,
+  ): Promise<ICourse> {
     try {
       const user = await this.userModel.findOne({ email: userEmail });
 

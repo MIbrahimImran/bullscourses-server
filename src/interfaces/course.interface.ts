@@ -1,4 +1,4 @@
-export interface Course {
+export interface ICourse {
   SESSION: string;
   COL: string;
   DPT: string;

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import { Course } from 'src/interfaces/course.interface';
+import { ICourse } from 'src/interfaces/course.interface';
 
 @Injectable()
 export class EmailService {
@@ -22,7 +22,7 @@ export class EmailService {
     });
   }
 
-  async sendSubscribeNotification(course: Course, userEmail: string) {
+  async sendSubscribeNotification(course: ICourse, userEmail: string) {
     try {
       const subject = `CRN:${course.CRN} Title:"${course.TITLE}" is now subscribed!`;
       const courseSubscriptionMessage = `You have successfully subscribed to ${course.CRN} ${course.TITLE}. You will receive email notifications when the course status changes.`;
@@ -36,7 +36,7 @@ export class EmailService {
     }
   }
 
-  async sendUnsubscribeNotification(course: Course, userEmail: string) {
+  async sendUnsubscribeNotification(course: ICourse, userEmail: string) {
     try {
       const subject = `CRN:${course.CRN} Title:"${course.TITLE}" is now unsubscribed!`;
       const courseUnsubscriptionMessage = `You have successfully unsubscribed from ${course.CRN} ${course.TITLE}. You will no longer receive email notifications when the course status changes.`;
@@ -64,7 +64,7 @@ export class EmailService {
     }
   }
 
-  async sendStatusChangeNotification(course: Course, userEmail: string) {
+  async sendStatusChangeNotification(course: ICourse, userEmail: string) {
     try {
       const subject = `${course.TITLE} is now ${course.STATUS}`;
       const courseStatusMessage = `You are subscribed to course Title: ${course.TITLE} | CRN: ${course.CRN} and its status has changed to ${course.STATUS}. 

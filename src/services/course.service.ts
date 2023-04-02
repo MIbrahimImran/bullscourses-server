@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Model } from 'mongoose';
 import { Cron } from '@nestjs/schedule';
-import { Course } from 'src/interfaces/course.interface';
+import { ICourse } from 'src/interfaces/course.interface';
 import { CourseScrapingService } from './scraping.service';
 import { User } from 'src/schemas/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,7 +13,7 @@ export class CourseDataService {
     private courseScrapingService: CourseScrapingService,
   ) {}
 
-  private courses: Course[] = [];
+  private courses: ICourse[] = [];
   private missingCoursesCount = 0;
 
   @Cron('0 * * * * *') // Runs every minute
@@ -23,8 +23,8 @@ export class CourseDataService {
     this.notifySubscribersOnCourseStatusChange();
   }
 
-  getSearchedCourses(userInput: string): Course[] {
-    const filteredCourses: Course[] = [];
+  getSearchedCourses(userInput: string): ICourse[] {
+    const filteredCourses: ICourse[] = [];
     for (const course of this.courses) {
       if (
         this.isValidCourseTitle(userInput, course) ||
@@ -37,8 +37,8 @@ export class CourseDataService {
     return filteredCourses;
   }
 
-  getCoursesByCRNs(crns: string[]): Course[] {
-    const filteredCourses: Course[] = [];
+  getCoursesByCRNs(crns: string[]): ICourse[] {
+    const filteredCourses: ICourse[] = [];
     for (const course of this.courses) {
       if (crns.includes(course.CRN)) {
         filteredCourses.push(course);
@@ -47,7 +47,7 @@ export class CourseDataService {
     return filteredCourses;
   }
 
-  private updateCourseData(courseData: Course[]): void {
+  private updateCourseData(courseData: ICourse[]): void {
     const lengthDifference = courseData.length - this.courses.length;
     const withinFivePercent =
       Math.abs(lengthDifference) / this.courses.length <= 0.05;
@@ -68,15 +68,15 @@ export class CourseDataService {
     }
   }
 
-  private isValidCourseTitle(userInput: string, course: Course): boolean {
+  private isValidCourseTitle(userInput: string, course: ICourse): boolean {
     return course.TITLE?.toLowerCase().includes(userInput.toLowerCase());
   }
 
-  private isValidCourseCRN(userInput: string, course: Course): boolean {
+  private isValidCourseCRN(userInput: string, course: ICourse): boolean {
     return course.CRN?.toLowerCase().includes(userInput.toLowerCase());
   }
 
-  private isValidCourseCRS(userInput: string, course: Course): boolean {
+  private isValidCourseCRS(userInput: string, course: ICourse): boolean {
     const trimmedInput = userInput.trim();
     const splitInput = trimmedInput.split(' ');
     if (splitInput.length === 2) {

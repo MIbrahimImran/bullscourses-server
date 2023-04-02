@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Course } from 'src/interfaces/course.interface';
+import { ICourse } from 'src/interfaces/course.interface';
 import { CourseSubscription } from 'src/interfaces/subscription.interface';
 import { SubscriptionService } from 'src/services/subscription.service';
 
@@ -18,14 +18,14 @@ export class SubscriptionController {
   constructor(private subscriptionService: SubscriptionService) {}
 
   @Post('subscribe')
-  subscribeCourse(@Body() body: any): Course {
+  subscribeCourse(@Body() body: any): ICourse {
     const { user, course } = body;
     this.subscriptionService.subscribeCourse(user.email, course);
     return course;
   }
 
   @Post('unsubscribe')
-  unsubscribeCourse(@Body() body: any): Course {
+  unsubscribeCourse(@Body() body: any): ICourse {
     const { user, course } = body;
     this.subscriptionService.unsubscribeCourse(user.email, course);
     return course;

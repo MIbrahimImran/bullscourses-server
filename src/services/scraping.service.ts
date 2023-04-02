@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import * as puppeteer from 'puppeteer';
 import { Browser } from 'puppeteer';
 
-import { Course } from 'src/interfaces/course.interface';
+import { ICourse } from 'src/interfaces/course.interface';
 
 @Injectable()
 export class CourseScrapingService {
   private url = 'https://usfweb.usf.edu/DSS/StaffScheduleSearch';
 
-  async getScrapedCourseData(): Promise<Course[]> {
+  async getScrapedCourseData(): Promise<ICourse[]> {
     const browser = await puppeteer.launch();
     const page = await this.getStaffScheduleCoursePage(browser, '202308');
     const tableData = await this.getTableData(page);
@@ -59,7 +59,7 @@ export class CourseScrapingService {
     return tableData;
   }
 
-  private formatTableData(tableData: any): Course[] {
+  private formatTableData(tableData: any): ICourse[] {
     const formattedTableData = tableData.map((row: any) => {
       const [
         SESSION,
