@@ -12,7 +12,8 @@ export class ChatGPTService {
     prompt += 'Give me 3 similar questions to the above question.';
     prompt += 'For each question, give me 3 answers.';
     prompt += 'If there is code, give me the formatted code.';
-    prompt += 'This is for exam preparation.';
+    prompt += 'This is exam preparation, give me the most relevant questions.';
+    prompt += 'Also, give me the answers explained in detail.';
 
     return await this.sendMessage(prompt);
   }

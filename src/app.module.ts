@@ -13,13 +13,11 @@ import { ConfigModule } from '@nestjs/config';
 import { UserService } from './services/user.service';
 import { UserController } from './controllers/user.controller';
 import { AuthModule } from './auth/auth.module';
-import { HttpModule } from '@nestjs/axios';
 import { ChatGPTController } from './controllers/chatGPT.controller';
 import { ChatGPTService } from './services/chatGPT.service';
 @Module({
   imports: [
     AuthModule,
-    HttpModule,
     ConfigModule.forRoot(),
     ScheduleModule.forRoot(),
     MongooseModule.forRoot(db.hostUri),
