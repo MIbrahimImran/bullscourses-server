@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Course } from 'src/interfaces/course.interface';
 import { Logger } from '@nestjs/common';
-import { User } from 'src/schemas/subscription.schema';
+import { User } from 'src/schemas/user.schema';
 import { EmailService } from './email.service';
 import { CourseSubscription } from 'src/interfaces/subscription.interface';
 
