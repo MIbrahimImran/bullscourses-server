@@ -5,6 +5,7 @@ import { Course } from 'src/interfaces/course.interface';
 import { CourseScrapingService } from './scraping.service';
 import { User } from 'src/schemas/user.schema';
 import { InjectModel } from '@nestjs/mongoose';
+
 @Injectable()
 export class CourseDataService {
   constructor(
