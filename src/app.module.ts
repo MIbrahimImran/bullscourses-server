@@ -13,8 +13,6 @@ import { ConfigModule } from '@nestjs/config';
 import { UserService } from './services/user.service';
 import { UserController } from './controllers/user.controller';
 import { AuthModule } from './auth/auth.module';
-import { ChatGPTController } from './controllers/chatGPT.controller';
-import { ChatGPTService } from './services/chatGPT.service';
 @Module({
   imports: [
     AuthModule,
@@ -23,19 +21,13 @@ import { ChatGPTService } from './services/chatGPT.service';
     MongooseModule.forRoot(db.hostUri),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
-  controllers: [
-    CourseController,
-    SubscriptionController,
-    UserController,
-    ChatGPTController,
-  ],
+  controllers: [CourseController, SubscriptionController, UserController],
   providers: [
     EmailService,
     SubscriptionService,
     CourseScrapingService,
     CourseDataService,
     UserService,
-    ChatGPTService,
   ],
 })
 export class AppModule {}
