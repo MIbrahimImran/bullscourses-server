@@ -1,8 +1,19 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { Course } from 'src/interfaces/course.interface';
+import { CourseSubscription } from 'src/interfaces/subscription.interface';
 import { SubscriptionService } from 'src/services/subscription.service';
 
 @Controller('subscription')
+@UseGuards(AuthGuard('jwt'))
 export class SubscriptionController {
   constructor(private subscriptionService: SubscriptionService) {}
 
@@ -20,30 +31,23 @@ export class SubscriptionController {
     return course;
   }
 
-  @Delete('deleteAllSubscriptions/:email')
-  async deleteAllSubscriptions(@Param('email') email: string): Promise<void> {
-    await this.subscriptionService.unsubscribeAllCourses(email);
+  @Delete('deleteAllSubscriptions')
+  async deleteAllSubscriptions(@Req() req: any): Promise<void> {
+    const { user } = req;
+    await this.subscriptionService.unsubscribeAllCourses(user.email);
   }
 
-  @Get('getSubscribedCRNs/:email')
-  async getUserSubscribedCRNs(
-    @Param('email') email: string,
-  ): Promise<string[]> {
-    const subscribedCRNs = await this.subscriptionService.getUserSubscribedCRNs(
-      email,
+  @Get('getUserSubscriptions')
+  async getUserSubscribedCRNs(@Req() req: any): Promise<CourseSubscription[]> {
+    const { user } = req;
+    const subscribedCRNs = await this.subscriptionService.getUserSubscriptions(
+      user.email,
     );
     return subscribedCRNs;
   }
 
-  @Get('getSubscribedCourses/:email')
-  async getUserSubscribedCourses(
-    @Param('email') email: string,
-  ): Promise<Course[]> {
-    return await this.subscriptionService.getUserSubscribedCourses(email);
-  }
-
   @Get('count')
-  async getSubscriptionsCount(): Promise<number> {
-    return await this.subscriptionService.getSubscriptionsCount();
+  async getTotalSubscriptionCount(): Promise<number> {
+    return await this.subscriptionService.getTotalSubscriptionCount();
   }
 }
