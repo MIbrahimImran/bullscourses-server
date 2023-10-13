@@ -10,7 +10,7 @@ export class CourseScrapingService {
 
   async getScrapedCourseData(): Promise<Course[]> {
     const browser = await puppeteer.launch();
-    const page = await this.getStaffScheduleCoursePage(browser, '202308');
+    const page = await this.getStaffScheduleCoursePage(browser, '202401');
     const tableData = await this.getTableData(page);
     const formattedTableData = this.formatTableData(tableData);
     await browser.close();
